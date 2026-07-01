@@ -131,7 +131,7 @@ def render_accounts_list(manager: AccountManager):
                                 st.success("Connected!")
                                 st.rerun()
                             else:
-                                st.error("Connection failed")
+                                st.error("Connection failed. Verify login/server/password and MT5 terminal path. Also ensure MT5 terminal is open and algo trading is enabled.")
 
             with col4:
                 # Set Active / Remove
@@ -252,7 +252,7 @@ def render_add_account(manager: AccountManager):
                             if manager.connect(account.id):
                                 st.success("Connected successfully!")
                             else:
-                                st.error("Connection failed. Check your credentials.")
+                                st.error("Connection failed. Verify login/server/password and MT5 terminal path. Also ensure MT5 terminal is open and algo trading is enabled.")
 
                     st.rerun()
 
