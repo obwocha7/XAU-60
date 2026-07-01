@@ -381,7 +381,14 @@ def test_mt5_connection(mt5_config: dict):
                 """)
             mt5.disconnect()
         else:
-            st.error("Failed to connect to MT5. Check your credentials.")
+            details = ""
+            if hasattr(mt5, "get_last_error"):
+                details = mt5.get_last_error() or ""
+            base_msg = "Failed to connect to MT5."
+            if details:
+                st.error(f"{base_msg} Details: {details}")
+            else:
+                st.error(f"{base_msg} Check login/server/password, MT5 path, and ensure MT5 terminal is running.")
     except ImportError:
         st.error("MetaTrader5 library not installed. Install with: pip install MetaTrader5")
     except Exception as e:

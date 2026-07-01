@@ -189,6 +189,7 @@ class MT5Connector:
         self._execution_log: List[ExecutionLog] = []
         self._lock = threading.RLock()
         self._symbols_cache: Dict[str, SymbolInfo] = {}
+        self._last_error: str = ""
 
     def connect(
         self,
@@ -220,24 +221,28 @@ class MT5Connector:
 
                 if not mt5.initialize(**init_params):
                     error = mt5.last_error()
-                    logger.error(f"MT5 initialization failed: {error}")
+                    self._last_error = f"MT5 initialization failed: {error}"
+                    logger.error(self._last_error)
                     return False
 
                 # Login if credentials provided
                 if login and password and server:
                     if not mt5.login(login, password=password, server=server):
                         error = mt5.last_error()
-                        logger.error(f"MT5 login failed: {error}")
+                        self._last_error = f"MT5 login failed: {error}"
+                        logger.error(self._last_error)
                         mt5.shutdown()
                         return False
 
                 self._connected = True
+                self._last_error = ""
                 self._update_account_info()
                 logger.info(f"Connected to MT5: {self._account_info.server if self._account_info else 'Unknown'}")
                 return True
 
             except Exception as e:
-                logger.error(f"Connection error: {e}")
+                self._last_error = f"Connection error: {e}"
+                logger.error(self._last_error)
                 return False
 
     def disconnect(self) -> None:
@@ -1410,6 +1415,12 @@ class MT5Connector:
             List of ExecutionLog entries
         """
         return self._execution_log[-limit:]
+
+    def get_last_error(self) -> str:
+        """
+        Get last connection/order error captured by connector.
+        """
+        return self._last_error
 
     def test_connection(self) -> bool:
         """
